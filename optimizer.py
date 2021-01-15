@@ -11,20 +11,13 @@ class Optimizer:
 		train_vars = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope=TRAIN_SCOPE)
 		update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
 		with tf.control_dependencies(update_ops):
-			if cosine_annealing:
-				lr = tf.train.cosine_decay_restarts(learning_rate,
-													global_step=current_iteration,
-													first_decay_steps=20,
-													t_mul=2.0,	
-													m_mul=1.0)
-			else:
-				lr = learning_rate
+			lr = learning_rate
 			optimizer = tf.train.AdamOptimizer(lr)
 			gradients = optimizer.compute_gradients(loss, 
-													var_list=train_vars, 
-													colocate_gradients_with_ops=True)
+								var_list=train_vars, 
+								colocate_gradients_with_ops=True)
 			capped_gradients = [(tf.clip_by_value(grad, -1., 1.), var) \
-								for grad, var in gradients if grad is not None]
+						for grad, var in gradients if grad is not None]
 			train_op = optimizer.apply_gradients(capped_gradients)
 			return train_op
 
